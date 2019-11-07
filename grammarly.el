@@ -7,7 +7,7 @@
 ;; Description: Grammarly API interface.
 ;; Keyword: grammar api interface english
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "24.3") (request "0.3.0"))
+;; Package-Requires: ((emacs "24.4") (request "0.3.0"))
 ;; URL: https://github.com/jcs090218/grammarly
 
 ;; This file is NOT part of GNU Emacs.
