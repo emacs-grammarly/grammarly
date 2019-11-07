@@ -41,8 +41,14 @@
   :link '(url-link :tag "Github" "https://github.com/jcs090218/grammarly"))
 
 
+(defvar-local grammarly--update-time 0.1
+  "Run every this seconds until we received API request.")
+
 (defvar-local grammarly--cookie ""
   "Record the cookie down.")
+
+(defvar-local grammarly--timer nil
+  "Universal timer for each await use.")
 
 
 (defun grammarly--get-cookie ()
@@ -69,7 +75,35 @@
       (user-error "[ERROR] Error while getting cookie")))))
 
 
-(message "%s" (grammarly--get-cookie))
+(defun grammarly--after-got-cookie ()
+  "Execution after received all needed cookies."
+  (if (string-empty-p grammarly--cookie)
+      (grammarly--reset-timer 'grammarly--after-got-cookie)
+    ;; TODO: Got cookie, now what?
+    (request
+     )
+    ))
+
+(defun grammarly--kill-timer ()
+  "Kill the timer."
+  (when (timerp grammarly--timer)
+    (cancel-timer grammarly--timer)
+    (setq grammarly--timer nil)))
+
+(defun grammarly--reset-timer (fnc)
+  "Reset the timer for the next run."
+  (grammarly--kill-timer)
+  (setq grammarly--timer
+        (run-with-timer grammarly--update-time nil fnc)))
+
+;;;###autoload
+(defun grammarly-check-text (text)
+  "Send the TEXT to check."
+  (grammarly--get-cookie)
+  (grammarly--reset-timer 'grammarly--after-got-cookie)
+  )
+
+(grammarly-check-text "Lets get started the work and please ensure all Ganoderma is collected before we leave.")
 
 
 (provide 'grammarly)
