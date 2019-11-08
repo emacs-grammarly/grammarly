@@ -140,7 +140,6 @@
       )
     :on-error
     (lambda (_ws _type err)
-      (message "%s" (grammarly--form-authorize-list))
       (message "%s" (json-encode (grammarly--form-authorize-list)))
       (user-error "[ERROR] Connection error while opening websocket: %s" err))
     :on-close
