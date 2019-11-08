@@ -53,7 +53,7 @@
 
 (defconst grammarly--init-msg
   '(("type" . "initial")
-    ("token" . "null")
+    ("token" . ())
     ("docid" . "dfad0927-7b35-e155-6de9-4a107053da35-43543554345")
     ("client" . "extension_chrome")
     ("protocolVersion" . "1.0")
@@ -102,6 +102,9 @@
   (request
    "https://grammarly.com/"
    :type "GET"
+   :headers
+   '(("User-Agent" . ())
+     ("Accept" . "application/json, text/plain, */*"))
    :success
    (cl-function
     (lambda (&key response  &allow-other-keys)
@@ -128,7 +131,7 @@
    (websocket-open
     "wss://capi.grammarly.com/freews"
     :protocols
-    (grammarly--form-authorize-list)
+    '("chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen, gnar_containerId=jpal9ir3b3b6302; grauth=AABHIJOf6ATxxHsAajjdjNKAPh7OtygUoFYqPuTMk_mV-bRAL2RnD4IzIm_kXEXWjx852REf3rZN16K0; csrf-token=AABHIKwLhNj5+HR9OZowCJ35ybGERpaOG3Ln8A; funnelType=free; browser_info=UNKNOWN:-1:UNKNOWN:SUPPORTED:NONFREEMIUM:UNKNOWN:UNKNOWN; redirect_location=eyJ0eXBlIjoiIiwibG9jYXRpb24iOiJodHRwczovL3d3dy5ncmFtbWFybHkuY29tLyJ9")
     :on-open
     (lambda (_ws)
       (websocket-send-text grammarly--client (json-encode grammarly--init-msg))
