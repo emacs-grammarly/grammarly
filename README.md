@@ -6,6 +6,30 @@
 > Grammarly API interface.
 
 
+## Examples
+
+Below is an simple example that how you can use this library for calling 
+Grammarly API interface.
+
+```el
+(require 'grammarly)
+
+;; Set callback for receiving data.
+(setq grammarly--on-message-function 
+      (lambda (data)
+        (message "[DATA] %s" data)))
+
+;; Send check text request.
+(grammarly-check-text "Hello World")
+```
+
+
+## References
+
+* [grammarly-api](https://github.com/dexterleng/grammarly-api)
+* [reverse-engineered-grammarly-api](https://github.com/c0nn3r/reverse-engineered-grammarly-api)
+
+
 ## Contribution
 
 If you would like to contribute to this project, you may either
