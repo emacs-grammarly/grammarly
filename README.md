@@ -15,7 +15,7 @@ Grammarly API interface.
 (require 'grammarly)
 
 ;; Set callback for receiving data.
-(setq grammarly--on-message-function 
+(setq grammarly-on-message-function 
       (lambda (data)
         (message "[DATA] %s" data)))
 
