@@ -172,11 +172,6 @@
     (lambda (_ws)
       (setq grammarly--client nil)))))
 
-(defun grammarly--default-callback (msg)
-  "Default callback, print out MSG."
-  (message "Recived Msg: %S" msg))
-
-
 (defun grammarly--kill-websocket ()
   "Kil the websocket."
   (when grammarly--client
@@ -197,6 +192,11 @@
             (run-with-timer grammarly--update-time nil
                             'grammarly--reset-timer fnc pred))
     (funcall fnc)))
+
+
+(defun grammarly--default-callback (data)
+  "Default callback, print out DATA."
+  (message "Recived Msg: %S" data))
 
 ;;;###autoload
 (defun grammarly-check-text (text)
