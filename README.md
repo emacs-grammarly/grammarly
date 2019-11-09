@@ -30,6 +30,11 @@ Grammarly API interface.
 * [reverse-engineered-grammarly-api](https://github.com/c0nn3r/reverse-engineered-grammarly-api)
 
 
+## Todo List
+
+[] Support multiple requests at the same time.
+
+
 ## Contribution
 
 If you would like to contribute to this project, you may either
