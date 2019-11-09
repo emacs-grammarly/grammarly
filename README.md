@@ -32,7 +32,7 @@ Grammarly API interface.
 
 ## Todo List
 
-[] Support multiple requests at the same time.
+[ ] Support multiple requests at the same time.
 
 
 ## Contribution
