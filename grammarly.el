@@ -77,8 +77,18 @@
     ("id" . 0))
   "Grammarly request package definition.")
 
-(defcustom grammarly--on-message-function 'grammarly--default-callback
+(defcustom grammarly-on-message-function nil
   "Callback function when execute on message."
+  :type 'function
+  :group 'grammarly)
+
+(defcustom grammarly-on-open-function nil
+  "Callback function when execute on open."
+  :type 'function
+  :group 'grammarly)
+
+(defcustom grammarly-on-close-function nil
+  "Callback function when execute on close."
   :type 'function
   :group 'grammarly)
 
@@ -158,18 +168,23 @@
     (grammarly--form-authorize-list)
     :on-open
     (lambda (_ws)
+      (when (functionp grammarly-on-open-function)
+        (funcall grammarly-on-open-function))
       ;; Verify valid client connection.
       (websocket-send-text grammarly--client (json-encode grammarly--init-msg))
       (websocket-send-text grammarly--client (json-encode (grammarly--form-check-request grammarly--text))))
     :on-message
     (lambda (_ws frame)
-      (when (functionp grammarly--on-message-function)
-        (funcall grammarly--on-message-function (json-read-from-string (websocket-frame-payload frame)))))
+      (when (functionp grammarly-on-message-function)
+        (funcall grammarly-on-message-function (json-read-from-string (websocket-frame-payload frame))))
+      (grammarly--default-callback (json-read-from-string (websocket-frame-payload frame))))
     :on-error
     (lambda (_ws _type err)
       (user-error "[ERROR] Connection error while opening websocket: %s" err))
     :on-close
     (lambda (_ws)
+      (when (functionp grammarly-on-close-function)
+        (funcall grammarly-on-close-function))
       (setq grammarly--client nil)))))
 
 (defun grammarly--kill-websocket ()
@@ -196,7 +211,9 @@
 
 (defun grammarly--default-callback (data)
   "Default callback, print out DATA."
-  (message "Recived Msg: %S" data))
+  (when (string-match-p "\"action\":\"finished\"" (json-encode data))
+    ;; Clean up after last response action received.
+    (grammarly--kill-websocket)))
 
 ;;;###autoload
 (defun grammarly-check-text (text)
