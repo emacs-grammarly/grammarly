@@ -184,8 +184,7 @@
     :on-close
     (lambda (_ws)
       (when (functionp grammarly-on-close-function)
-        (funcall grammarly-on-close-function))
-      (setq grammarly--client nil)))))
+        (funcall grammarly-on-close-function))))))
 
 (defun grammarly--kill-websocket ()
   "Kil the websocket."
