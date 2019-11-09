@@ -7,7 +7,7 @@
 ;; Description: Grammarly API interface.
 ;; Keyword: grammar api interface english
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "24.4") (cl-lib "0.6") (request "0.3.0") (websocket "1.6"))
+;; Package-Requires: ((emacs "24.4") (cl-lib "0.6") (s "1.12.0") (request "0.3.0") (websocket "1.6"))
 ;; URL: https://github.com/jcs090218/grammarly
 
 ;; This file is NOT part of GNU Emacs.
@@ -33,6 +33,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 's)
 (require 'json)
 (require 'request)
 (require 'websocket)
@@ -47,8 +48,8 @@
 
 (defconst grammarly--authorize-msg
   '(("origin" . "chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen")
-    ("headers" . (("Cookie" . "$COOKIES$")
-                  ("User-Agent" . "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"))))
+    ("Cookie" . "$COOKIES$")
+    ("User-Agent" . "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"))
   "Authorize message for Grammarly API.")
 
 (defconst grammarly--init-msg
@@ -68,6 +69,21 @@
     ("action" . "start")
     ("id" . 0))
   "Grammarly initialize message for verify use.")
+
+(defconst grammarly--request-check
+  '(("ch" . ("+0:0:$STR$:0"))
+    ("rev" . 0)
+    ("action" . "submit_ot")
+    ("id" . 0))
+  "Grammarly request package definition.")
+
+(defcustom grammarly--on-message-function 'grammarly--default-callback
+  "Callback function when execute on message."
+  :type 'function
+  :group 'grammarly)
+
+(defvar-local grammarly--text ""
+  "Current text that are goint to check for.")
 
 (defvar-local grammarly--client nil
   "Websocket for this client.")
@@ -107,7 +123,7 @@
      ("Accept" . "application/json, text/plain, */*"))
    :success
    (cl-function
-    (lambda (&key response  &allow-other-keys)
+    (lambda (&key _response  &allow-other-keys)
       (setq grammarly--cookies (grammarly--form-cookie))))
    :error
    ;; NOTE: Accept, error.
@@ -119,9 +135,17 @@
 (defun grammarly--form-authorize-list ()
   "Form the authorize list."
   (let ((auth (copy-sequence grammarly--authorize-msg)))
-    ;; NOTE: Here we directly point to the `$COOKIES$' keyword.
-    (setcdr (nth 0 (cdr (nth 1 auth))) grammarly--cookies)
+    ;; NOTE: Here we directly point it to the `$COOKIES$' keyword.
+    (setcdr (nth 1 auth) grammarly--cookies)
     auth))
+
+(defun grammarly--form-check-request (text)
+  "Form a check request by TEXT."
+  (let* ((req (copy-sequence grammarly--request-check))
+         ;; NOTE: Here we directly point it to the `$STR$' keyword.
+         (text-slot (nth 0 (cdr (nth 0 req)))))
+    (setf (nth 0 (cdr (nth 0 req))) (s-replace "$STR$" text text-slot))
+    req))
 
 (defun grammarly--after-got-cookie ()
   "Execution after received all needed cookies."
@@ -130,28 +154,28 @@
    grammarly--client
    (websocket-open
     "wss://capi.grammarly.com/freews"
-    :protocols
-    '("chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen, gnar_containerId=jpal9ir3b3b6302; grauth=AABHIJOf6ATxxHsAajjdjNKAPh7OtygUoFYqPuTMk_mV-bRAL2RnD4IzIm_kXEXWjx852REf3rZN16K0; csrf-token=AABHIKwLhNj5+HR9OZowCJ35ybGERpaOG3Ln8A; funnelType=free; browser_info=UNKNOWN:-1:UNKNOWN:SUPPORTED:NONFREEMIUM:UNKNOWN:UNKNOWN; redirect_location=eyJ0eXBlIjoiIiwibG9jYXRpb24iOiJodHRwczovL3d3dy5ncmFtbWFybHkuY29tLyJ9")
+    :custom-header-alist
+    (grammarly--form-authorize-list)
     :on-open
     (lambda (_ws)
+      ;; Verify valid client connection.
       (websocket-send-text grammarly--client (json-encode grammarly--init-msg))
-      (message "opened")
-      )
+      (websocket-send-text grammarly--client (json-encode (grammarly--form-check-request grammarly--text))))
     :on-message
     (lambda (_ws frame)
-      (message "ws frame: %S" (websocket-frame-text frame))
-      )
+      (when (functionp grammarly--on-message-function)
+        (funcall grammarly--on-message-function (json-read-from-string (websocket-frame-payload frame)))))
     :on-error
     (lambda (_ws _type err)
-      (message "%s" (json-encode (grammarly--form-authorize-list)))
       (user-error "[ERROR] Connection error while opening websocket: %s" err))
     :on-close
     (lambda (_ws)
       (setq grammarly--client nil)))))
 
-(defun grammarly--after-socket-opened ()
-  "Execution after the socket is opened."
-  )
+(defun grammarly--default-callback (msg)
+  "Default callback, print out MSG."
+  (message "Recived Msg: %S" msg))
+
 
 (defun grammarly--kill-websocket ()
   "Kil the websocket."
@@ -177,12 +201,12 @@
 ;;;###autoload
 (defun grammarly-check-text (text)
   "Send the TEXT to check."
-  (grammarly--get-cookie)
-  (grammarly--reset-timer 'grammarly--after-got-cookie
-                          #'(lambda () (string-empty-p grammarly--cookies)))
-  )
-
-(grammarly-check-text "Lets get started the work and please ensure all Ganoderma is collected before we leave.")
+  (if (or (not (stringp text)) (string-empty-p text))
+      (user-error "[ERROR] Text can't be 'nil' or 'empty'")
+    (setq grammarly--text text)
+    (grammarly--get-cookie)
+    (grammarly--reset-timer 'grammarly--after-got-cookie
+                            #'(lambda () (string-empty-p grammarly--cookies)))))
 
 
 (provide 'grammarly)
