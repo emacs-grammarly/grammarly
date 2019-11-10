@@ -77,19 +77,19 @@
     ("id" . 0))
   "Grammarly request package definition.")
 
-(defcustom grammarly-on-message-function nil
-  "Callback function when execute on message."
-  :type 'function
+(defcustom grammarly-on-message-function-list '()
+  "List of callback function when execute on message."
+  :type 'list
   :group 'grammarly)
 
-(defcustom grammarly-on-open-function nil
-  "Callback function when execute on open."
-  :type 'function
+(defcustom grammarly-on-open-function-list '()
+  "List of callback function when execute on open."
+  :type 'list
   :group 'grammarly)
 
-(defcustom grammarly-on-close-function nil
-  "Callback function when execute on close."
-  :type 'function
+(defcustom grammarly-on-close-function-list '()
+  "List of callback function when execute on close."
+  :type 'list
   :group 'grammarly)
 
 (defvar grammarly--text ""
@@ -107,6 +107,13 @@
 (defvar-local grammarly--timer nil
   "Universal timer for each await use.")
 
+
+(defun grammarly--execute-function-list (lst &rest args)
+  "Execute all function LST."
+  (cond
+   ((functionp lst) (apply lst args))
+   ((listp lst) (dolist (fnc lst) (apply fnc args)))
+   (t (user-error "[ERROR] Function does not exists: %s" lst))))
 
 (defun grammarly--last-cookie (cookie cookies)
   "Check if current COOKIE the last cookie from COOKIES."
@@ -168,23 +175,20 @@
     (grammarly--form-authorize-list)
     :on-open
     (lambda (_ws)
-      (when (functionp grammarly-on-open-function)
-        (funcall grammarly-on-open-function))
+      (grammarly--execute-function-list grammarly-on-open-function-list)
       ;; Verify valid client connection.
       (websocket-send-text grammarly--client (json-encode grammarly--init-msg))
       (websocket-send-text grammarly--client (json-encode (grammarly--form-check-request grammarly--text))))
     :on-message
     (lambda (_ws frame)
-      (when (functionp grammarly-on-message-function)
-        (funcall grammarly-on-message-function (websocket-frame-payload frame)))
+      (grammarly--execute-function-list grammarly-on-message-function-list (websocket-frame-payload frame))
       (grammarly--default-callback (websocket-frame-payload frame)))
     :on-error
     (lambda (_ws _type err)
       (user-error "[ERROR] Connection error while opening websocket: %s" err))
     :on-close
     (lambda (_ws)
-      (when (functionp grammarly-on-close-function)
-        (funcall grammarly-on-close-function))))))
+      (grammarly--execute-function-list grammarly-on-close-function-list)))))
 
 (defun grammarly--kill-websocket ()
   "Kil the websocket."
