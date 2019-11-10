@@ -95,21 +95,21 @@
 (defvar grammarly--text ""
   "Current text that are goint to check for.")
 
-(defvar-local grammarly--client nil
+(defvar grammarly--client nil
   "Websocket for this client.")
 
-(defvar-local grammarly--update-time 0.1
+(defvar grammarly--update-time 0.1
   "Run every this seconds until we received API request.")
 
-(defvar-local grammarly--cookies ""
+(defvar grammarly--cookies ""
   "Record the cookie down.")
 
-(defvar-local grammarly--timer nil
+(defvar grammarly--timer nil
   "Universal timer for each await use.")
 
 
 (defun grammarly--execute-function-list (lst &rest args)
-  "Execute all function LST."
+  "Execute all function LST with ARGS."
   (cond
    ((functionp lst) (apply lst args))
    ((listp lst) (dolist (fnc lst) (apply fnc args)))
@@ -158,10 +158,9 @@
 
 (defun grammarly--form-check-request (text)
   "Form a check request by TEXT."
-  (let* ((req (copy-sequence grammarly--request-check))
-         ;; NOTE: Here we directly point it to the `$STR$' keyword.
-         (text-slot (nth 0 (cdr (nth 0 req)))))
-    (setf (nth 0 (cdr (nth 0 req))) (s-replace "$STR$" text text-slot))
+  (let ((req (copy-sequence grammarly--request-check)))
+    ;; NOTE: Here we directly point it to the `$STR$' keyword.
+    (setf (nth 0 (cdr (nth 0 req))) (s-replace "$STR$" text "+0:0:$STR$:0"))
     req))
 
 (defun grammarly--after-got-cookie ()
