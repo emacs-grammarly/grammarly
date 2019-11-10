@@ -156,11 +156,16 @@
     (setcdr (nth 1 auth) grammarly--cookies)
     auth))
 
+(defun grammarly--valid-doc (text)
+  "Turn TEXT to valid document that Grammarly able to read."
+  (s-replace "\n" "\\n" text))
+
 (defun grammarly--form-check-request (text)
   "Form a check request by TEXT."
-  (let ((req (copy-sequence grammarly--request-check)))
+  (let ((req (copy-sequence grammarly--request-check))
+        (valid-text (grammarly--valid-doc text)))
     ;; NOTE: Here we directly point it to the `$STR$' keyword.
-    (setf (nth 0 (cdr (nth 0 req))) (s-replace "$STR$" text "+0:0:$STR$:0"))
+    (setf (nth 0 (cdr (nth 0 req))) (s-replace "$STR$" valid-text "+0:0:$STR$:0"))
     req))
 
 (defun grammarly--after-got-cookie ()
