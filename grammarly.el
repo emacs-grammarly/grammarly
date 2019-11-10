@@ -92,7 +92,7 @@
   :type 'function
   :group 'grammarly)
 
-(defvar-local grammarly--text ""
+(defvar grammarly--text ""
   "Current text that are goint to check for.")
 
 (defvar-local grammarly--client nil
@@ -176,8 +176,8 @@
     :on-message
     (lambda (_ws frame)
       (when (functionp grammarly-on-message-function)
-        (funcall grammarly-on-message-function (json-read-from-string (websocket-frame-payload frame))))
-      (grammarly--default-callback (json-read-from-string (websocket-frame-payload frame))))
+        (funcall grammarly-on-message-function (websocket-frame-payload frame)))
+      (grammarly--default-callback (websocket-frame-payload frame)))
     :on-error
     (lambda (_ws _type err)
       (user-error "[ERROR] Connection error while opening websocket: %s" err))
@@ -210,7 +210,7 @@
 
 (defun grammarly--default-callback (data)
   "Default callback, print out DATA."
-  (when (string-match-p "\"action\":\"finished\"" (json-encode data))
+  (when (string-match-p "\"action\":\"finished\"" data)
     ;; Clean up after last response action received.
     (grammarly--kill-websocket)))
 
