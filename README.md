@@ -14,12 +14,12 @@ Grammarly API interface.
 ```el
 (require 'grammarly)
 
-;; Set callback for receiving data.
-(add-to-list 'grammarly-on-message-function-list 'test-on-message)
-
 (defun test-on-message (data)
   "On message callback with DATA."
   (message "[DATA] %s" data))
+
+;; Set callback for receiving data.
+(add-to-list 'grammarly-on-message-function-list 'test-on-message)
 
 ;; Send check text request.
 (grammarly-check-text "Hello World")
