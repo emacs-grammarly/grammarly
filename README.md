@@ -15,9 +15,11 @@ Grammarly API interface.
 (require 'grammarly)
 
 ;; Set callback for receiving data.
-(setq grammarly-on-message-function 
-      (lambda (data)
-        (message "[DATA] %s" data)))
+(add-to-list 'grammarly-on-message-function-list 'test-on-message)
+
+(defun test-on-message (data)
+  "On message callback with DATA."
+  (message "[DATA] %s" data))
 
 ;; Send check text request.
 (grammarly-check-text "Hello World")
