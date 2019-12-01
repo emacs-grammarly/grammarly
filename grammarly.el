@@ -1,4 +1,4 @@
-;;; grammarly.el --- Grammarly API interface.  -*- lexical-binding: t; -*-
+;;; grammarly.el --- Grammarly API interface  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019  Shen, Jen-Chieh
 ;; Created date 2019-11-06 20:41:48
