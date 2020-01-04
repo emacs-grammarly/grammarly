@@ -34,6 +34,7 @@
 
 (require 'cl-lib)
 (require 's)
+(require 'subr-x)
 (require 'json)
 (require 'request)
 (require 'websocket)
@@ -42,7 +43,7 @@
 (defgroup grammarly nil
   "Grammarly API interface."
   :prefix "grammarly-"
-  :group 'tool
+  :group 'text
   :link '(url-link :tag "Github" "https://github.com/jcs090218/grammarly"))
 
 
@@ -93,7 +94,7 @@
   :group 'grammarly)
 
 (defvar grammarly--text ""
-  "Current text that are goint to check for.")
+  "Current text that are going to check for.")
 
 (defvar grammarly--client nil
   "Websocket for this client.")
