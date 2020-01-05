@@ -8,7 +8,7 @@
 ;; Keyword: grammar api interface english
 ;; Version: 0.1.1
 ;; Package-Requires: ((emacs "24.4") (cl-lib "0.6") (s "1.12.0") (request "0.3.0") (websocket "1.6"))
-;; URL: https://github.com/jcs090218/grammarly
+;; URL: https://github.com/jcs-elpa/grammarly
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -44,7 +44,7 @@
   "Grammarly API interface."
   :prefix "grammarly-"
   :group 'text
-  :link '(url-link :tag "Github" "https://github.com/jcs090218/grammarly"))
+  :link '(url-link :tag "Github" "https://github.com/jcs-elpa/grammarly"))
 
 
 (defconst grammarly--authorize-msg
@@ -191,7 +191,7 @@
       (grammarly--execute-function-list grammarly-on-close-function-list)))))
 
 (defun grammarly--kill-websocket ()
-  "Kil the websocket."
+  "Kill the websocket."
   (when grammarly--client
     (websocket-close grammarly--client)
     (setq grammarly--client nil)))
@@ -225,8 +225,8 @@
       (user-error "[ERROR] Text can't be 'nil' or 'empty'")
     (setq grammarly--text text)
     (grammarly--get-cookie)
-    (grammarly--reset-timer 'grammarly--after-got-cookie
-                            #'(lambda () (string-empty-p grammarly--cookies)))))
+    (grammarly--reset-timer #'grammarly--after-got-cookie
+                            '(lambda () (string-empty-p grammarly--cookies)))))
 
 
 (provide 'grammarly)
