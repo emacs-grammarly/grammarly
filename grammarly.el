@@ -78,20 +78,14 @@
     ("id" . 0))
   "Grammarly request package definition.")
 
-(defcustom grammarly-on-message-function-list '()
-  "List of callback function when execute on message."
-  :type 'list
-  :group 'grammarly)
+(defvar grammarly-on-message-function-list '()
+  "List of callback function when execute on message.")
 
-(defcustom grammarly-on-open-function-list '()
-  "List of callback function when execute on open."
-  :type 'list
-  :group 'grammarly)
+(defvar grammarly-on-open-function-list '()
+  "List of callback function when execute on open.")
 
-(defcustom grammarly-on-close-function-list '()
-  "List of callback function when execute on close."
-  :type 'list
-  :group 'grammarly)
+(defvar grammarly-on-close-function-list '()
+  "List of callback function when execute on close.")
 
 (defvar grammarly--text ""
   "Current text that are going to check for.")
