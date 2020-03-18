@@ -37,6 +37,7 @@ Grammarly API interface.
 ## Todo List
 
 - [ ] Support multiple requests at the same time.
+- [ ] Support login and premium account.
 
 
 ## Contribution
