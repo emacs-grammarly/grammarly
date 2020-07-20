@@ -39,13 +39,11 @@
 (require 'request)
 (require 'websocket)
 
-
 (defgroup grammarly nil
   "Grammarly API interface."
   :prefix "grammarly-"
   :group 'text
   :link '(url-link :tag "Github" "https://github.com/jcs-elpa/grammarly"))
-
 
 (defconst grammarly--authorize-msg
   '(("origin" . "chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen")
@@ -102,7 +100,6 @@
 (defvar grammarly--timer nil
   "Universal timer for each await use.")
 
-
 (defun grammarly--execute-function-list (lst &rest args)
   "Execute all function LST with ARGS."
   (cond
@@ -142,7 +139,6 @@
    (cl-function
     (lambda (&rest args &key _error-thrown &allow-other-keys)
       (user-error "[ERROR] Error while getting cookie")))))
-
 
 (defun grammarly--form-authorize-list ()
   "Form the authorize list."
@@ -205,7 +201,6 @@
                             'grammarly--reset-timer fnc pred))
     (funcall fnc)))
 
-
 (defun grammarly--default-callback (data)
   "Default callback, print out DATA."
   (when (string-match-p "\"action\":\"finished\"" data)
@@ -221,7 +216,6 @@
     (grammarly--get-cookie)
     (grammarly--reset-timer #'grammarly--after-got-cookie
                             '(lambda () (string-empty-p grammarly--cookies)))))
-
 
 (provide 'grammarly)
 ;;; grammarly.el ends here
