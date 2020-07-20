@@ -3,10 +3,8 @@
 [![MELPA Stable](https://stable.melpa.org/packages/grammarly-badge.svg)](https://stable.melpa.org/#/grammarly)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-
 # grammarly
 > Grammarly API interface.
-
 
 ## Examples
 
@@ -27,18 +25,15 @@ Grammarly API interface.
 (grammarly-check-text "Hello World")
 ```
 
-
 ## References
 
 * [grammarly-api](https://github.com/dexterleng/grammarly-api)
 * [reverse-engineered-grammarly-api](https://github.com/c0nn3r/reverse-engineered-grammarly-api)
 
-
 ## Todo List
 
 - [ ] Support multiple requests at the same time.
 - [ ] Support login and premium account.
-
 
 ## Contribution
 
