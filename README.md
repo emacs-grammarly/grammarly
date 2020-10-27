@@ -3,7 +3,7 @@
 [![MELPA Stable](https://stable.melpa.org/packages/grammarly-badge.svg)](https://stable.melpa.org/#/grammarly)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-<a href="https://app.grammarly.com/"><img align="right" src="./etc/logo.png" width="40" height="40"></a>
+<a href="https://app.grammarly.com/"><img align="right" src="./etc/logo.png" width="70" height="70"></a>
 # grammarly
 > Grammarly API interface.
 
