@@ -4,6 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <a href="https://app.grammarly.com/"><img align="right" src="./etc/logo.png" width="100" height="100"></a>
+
 # grammarly
 > Grammarly API interface.
 
