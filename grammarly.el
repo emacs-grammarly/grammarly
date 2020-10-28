@@ -60,7 +60,7 @@
   "User agent.")
 
 (defconst grammarly--browser-header
-  `(("User-Agent" . ,grammarly--user-agent)
+  `(("User-Agent" . ())
     ("Accept" . "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
     ("Accept-Language" . "en-GB,en-US;q=0.9,en;q=0.8")
     ("Cache-Control" . "no-cache")
@@ -250,7 +250,7 @@
                          ("secureLogin" . "false")))))
     :success
     (cl-function
-     (lambda (&key response &allow-other-keys)
+     (lambda (&key _response &allow-other-keys)
        (setq grammarly--start-checking-p t)))
     :error
     ;; NOTE: Accept, error.
@@ -330,7 +330,7 @@
     (grammarly--get-cookie)
     ;; Delay, until we get the initial cookie.
     (grammarly--reset-timer #'grammarly--after-got-cookie
-                            '(lambda () grammarly--start-checking-p))))
+                            '(lambda () (null grammarly--start-checking-p)))))
 
 (provide 'grammarly)
 ;;; grammarly.el ends here
