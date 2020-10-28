@@ -191,7 +191,8 @@
 
 (defun grammarly--get-cookie ()
   "Get cookie."
-  (setq grammarly--cookies "")  ; Reset to clean string.
+  (setq grammarly--start-checking-p nil
+        grammarly--cookies "")  ; Reset to clean string.
   (request
     "https://grammarly.com/signin"
     :type "GET"
@@ -255,6 +256,7 @@
     ;; NOTE: Accept, error.
     (cl-function
      (lambda (&rest args &key _error-thrown &allow-other-keys)
+       (setq grammarly--start-checking-p t)  ; Go back and use anonymous version
        (message "[ERROR] Error while authenticating login: %s" args)))))
 
 ;;
@@ -282,8 +284,7 @@
    grammarly--client
    (websocket-open
     "wss://capi.grammarly.com/freews"
-    :custom-header-alist
-    (grammarly--form-authorize-list)
+    :custom-header-alist (grammarly--form-authorize-list)
     :on-open
     (lambda (_ws)
       (grammarly--execute-function-list grammarly-on-open-function-list)
