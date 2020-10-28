@@ -10,7 +10,7 @@
 
 ## Examples
 
-Below is an simple example that how you can use this library for calling 
+Below is an simple example that how you can use this library for calling
 Grammarly API interface.
 
 ```el
@@ -27,15 +27,25 @@ Grammarly API interface.
 (grammarly-check-text "Hello World")
 ```
 
+## Using a Paid Grammarly Account
+
+You will need the set the following variable in order to use paid version
+of Grammarly!
+
+```el
+(setq grammarly-username "")  ; Your Grammarly Username
+(setq grammarly-password "")  ; Your Grammarly Password
+```
+
 ## References
 
 * [grammarly-api](https://github.com/dexterleng/grammarly-api)
 * [reverse-engineered-grammarly-api](https://github.com/c0nn3r/reverse-engineered-grammarly-api)
+* [grammarly (vscode)](https://github.com/znck/grammarly)
 
 ## Todo List
 
 - [ ] Support multiple requests at the same time.
-- [ ] Support login and premium account.
 
 ## Contribution
 
