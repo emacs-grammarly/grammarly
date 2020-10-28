@@ -33,8 +33,8 @@ You will need the set the following variable in order to use paid version
 of Grammarly!
 
 ```el
-(setq grammarly-username "")  ; Your Grammarly Username
-(setq grammarly-password "")  ; Your Grammarly Password
+(setq grammarly-username "username@email.com")  ; Your Grammarly Username
+(setq grammarly-password "password")  ; Your Grammarly Password
 ```
 
 ## References
