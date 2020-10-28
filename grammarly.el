@@ -45,10 +45,32 @@
   :group 'text
   :link '(url-link :tag "Github" "https://github.com/jcs-elpa/grammarly"))
 
+(defcustom grammarly-username ""
+  "Grammarly login username."
+  :type 'string
+  :group 'grammarly)
+
+(defcustom grammarly-password ""
+  "Grammarly login password."
+  :type 'string
+  :group 'grammarly)
+
+(defconst grammarly--user-agent
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"
+  "User agent.")
+
+(defconst grammarly--browser-header
+  `(("User-Agent" . ,grammarly--user-agent)
+    ("Accept" . "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+    ("Accept-Language" . "en-GB,en-US;q=0.9,en;q=0.8")
+    ("Cache-Control" . "no-cache")
+    ("Pragma" . "no-cache"))
+  "Header for simulate using a browser.")
+
 (defconst grammarly--authorize-msg
-  '(("origin" . "chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen")
+  `(("origin" . "chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen")
     ("Cookie" . "$COOKIES$")
-    ("User-Agent" . "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"))
+    ("User-Agent" . ,grammarly--user-agent))
   "Authorize message for Grammarly API.")
 
 (defconst grammarly--init-msg
@@ -100,6 +122,25 @@
 (defvar grammarly--timer nil
   "Universal timer for each await use.")
 
+(defvar grammarly--start-checking-p nil
+  "Flag to after we are done preparing; basically after authentication process.")
+
+;;
+;; (@* "Util" )
+;;
+
+(defun grammarly--kill-websocket ()
+  "Kill the websocket."
+  (when grammarly--client
+    (websocket-close grammarly--client)
+    (setq grammarly--client nil)))
+
+(defun grammarly--kill-timer ()
+  "Kill the timer."
+  (when (timerp grammarly--timer)
+    (cancel-timer grammarly--timer)
+    (setq grammarly--timer nil)))
+
 (defun grammarly--execute-function-list (lst &rest args)
   "Execute all function LST with ARGS."
   (cond
@@ -107,38 +148,118 @@
    ((listp lst) (dolist (fnc lst) (apply fnc args)))
    (t (user-error "[ERROR] Function does not exists: %s" lst))))
 
+;;
+;; (@* "Cookie" )
+;;
+
+(defvar grammarly--auth-cookie '()
+  "Authorization cookie container.")
+
 (defun grammarly--last-cookie (cookie cookies)
   "Check if current COOKIE the last cookie from COOKIES."
   (equal (nth (1- (length cookies)) cookies) cookie))
 
+(defun grammarly--get-cookie-by-name (name)
+  "Return cookie value by cookie NAME."
+  (let ((len (length grammarly--auth-cookie)) (index 0) break cookie-val)
+    (while (and (not break) (< index len))
+      (let* ((cookie (nth index grammarly--auth-cookie))
+             (cookie-name (car cookie)))
+        (when (string= cookie-name name)
+          (setq cookie-val (cdr cookie))
+          (setq break t)))
+      (setq index (1+ index)))
+    cookie-val))
+
 (defun grammarly--form-cookie ()
   "Form all cookies into one string."
+  (setq grammarly--auth-cookie '())
   (let ((sec-cookies (request-cookie-alist ".grammarly.com" "/" t))
-        (cookie-str ""))
+        (cookie-str "") cookie-name cookie-val)
     (dolist (cookie sec-cookies)
-      (setq cookie-str
-            (format "%s %s=%s%s" cookie-str (car cookie) (cdr cookie)
-                    (if (grammarly--last-cookie cookie sec-cookies) "" ";"))))
+      (setq cookie-name (car cookie) cookie-val (cdr cookie)
+            cookie-str
+            (format "%s %s=%s%s" cookie-str cookie-name cookie-val
+                    (if (grammarly--last-cookie cookie sec-cookies) "" ";")))
+      (push (cons cookie-name cookie-val) grammarly--auth-cookie))
+    (setq grammarly--auth-cookie (reverse grammarly--auth-cookie))
     (string-trim cookie-str)))
+
+(defun grammarly--update-cookie ()
+  "Refresh the cookie once."
+  (setq grammarly--cookies (grammarly--form-cookie)))
 
 (defun grammarly--get-cookie ()
   "Get cookie."
   (setq grammarly--cookies "")  ; Reset to clean string.
   (request
-   "https://grammarly.com/"
-   :type "GET"
-   :headers
-   '(("User-Agent" . ())
-     ("Accept" . "application/json, text/plain, */*"))
-   :success
-   (cl-function
-    (lambda (&key _response  &allow-other-keys)
-      (setq grammarly--cookies (grammarly--form-cookie))))
-   :error
-   ;; NOTE: Accept, error.
-   (cl-function
-    (lambda (&rest args &key _error-thrown &allow-other-keys)
-      (user-error "[ERROR] Error while getting cookie")))))
+    "https://grammarly.com/signin"
+    :type "GET"
+    :headers
+    (append grammarly--browser-header
+            '(("Sec-Fetch-Mode" . "navigate")
+              ("Sec-Fetch-Sit" . "same-origin")
+              ("Sec-Fetch-User" . "?1")
+              ("Upgrade-Insecure-Requests" . "1")
+              ("Referer" . "https://www.grammarly.com/")))
+    :success
+    (cl-function
+     (lambda (&key _response &allow-other-keys)
+       (grammarly--update-cookie)
+       (if (grammarly-premium-p)  ; Try login to use paid version.
+           (grammarly--authenticate)
+         (setq grammarly--start-checking-p t))))
+    :error
+    ;; NOTE: Accept, error.
+    (cl-function
+     (lambda (&rest args &key _error-thrown &allow-other-keys)
+       (message "[ERROR] Error while getting cookie: %s" args)))))
+
+;;
+;; (@* "Login" )
+;;
+
+(defun grammarly-premium-p ()
+  "Return non-nil means we are using premium version."
+  (and (not (string-empty-p grammarly-username))
+       (not (string-empty-p grammarly-password))))
+
+(defun grammarly--authenticate ()
+  "Login to Grammarly for premium version."
+  (message "connecting as %s" grammarly-username)
+  (request
+    "https://auth.grammarly.com/v3/api/login"
+    :type "POST"
+    :headers
+    `(("accept" . "application/json")
+      ("accept-language" . "en-GB,en-US;q=0.9,en;q=0.8")
+      ("content-type" . "application/json")
+      ("user-agent" . ,grammarly--user-agent)
+      ("x-client-type" . "funnel")
+      ("x-client-version" . "1.2.2026")
+      ("x-container-id" . ,(grammarly--get-cookie-by-name "gnar_containerId"))
+      ("x-csrf-token" . ,(grammarly--get-cookie-by-name "csrf-token"))
+      ("sec-fetch-site" . "same-site")
+      ("sec-fetch-mode" . "cors")
+      ("cookie" . ,grammarly--cookies))
+    :data
+    (json-encode
+     `(("email_login" . (("email" . ,grammarly-username)
+                         ("password" . ,grammarly-password)
+                         ("secureLogin" . "false")))))
+    :success
+    (cl-function
+     (lambda (&key response &allow-other-keys)
+       (setq grammarly--start-checking-p t)))
+    :error
+    ;; NOTE: Accept, error.
+    (cl-function
+     (lambda (&rest args &key _error-thrown &allow-other-keys)
+       (message "[ERROR] Error while authenticating login: %s" args)))))
+
+;;
+;; (@* "WebSocket" )
+;;
 
 (defun grammarly--form-authorize-list ()
   "Form the authorize list."
@@ -180,17 +301,9 @@
     (lambda (_ws)
       (grammarly--execute-function-list grammarly-on-close-function-list)))))
 
-(defun grammarly--kill-websocket ()
-  "Kill the websocket."
-  (when grammarly--client
-    (websocket-close grammarly--client)
-    (setq grammarly--client nil)))
-
-(defun grammarly--kill-timer ()
-  "Kill the timer."
-  (when (timerp grammarly--timer)
-    (cancel-timer grammarly--timer)
-    (setq grammarly--timer nil)))
+;;
+;; (@* "Core" )
+;;
 
 (defun grammarly--reset-timer (fnc pred)
   "Reset the timer for the next run with FNC and PRED."
@@ -214,8 +327,9 @@
       (user-error "[ERROR] Text can't be 'nil' or 'empty'")
     (setq grammarly--text text)
     (grammarly--get-cookie)
+    ;; Delay, until we get the initial cookie.
     (grammarly--reset-timer #'grammarly--after-got-cookie
-                            '(lambda () (string-empty-p grammarly--cookies)))))
+                            '(lambda () grammarly--start-checking-p))))
 
 (provide 'grammarly)
 ;;; grammarly.el ends here
