@@ -125,9 +125,17 @@
 (defvar grammarly--start-checking-p nil
   "Flag to after we are done preparing; basically after authentication process.")
 
+(defvar grammarly--show-debug-message nil
+  "Flag to see if we show debug messages.")
+
 ;;
 ;; (@* "Util" )
 ;;
+
+(defun grammarly--debug-message (fmt &rest args)
+  "Debug message like function `message' with same argument FMT and ARGS."
+  (when grammarly--show-debug-message
+    (apply 'message fmt args)))
 
 (defun grammarly--kill-websocket ()
   "Kill the websocket."
@@ -214,7 +222,7 @@
     ;; NOTE: Accept, error.
     (cl-function
      (lambda (&rest args &key _error-thrown &allow-other-keys)
-       (message "[ERROR] Error while getting cookie: %s" args)))))
+       (grammarly--debug-message "[ERROR] Error while getting cookie: %s" args)))))
 
 ;;
 ;; (@* "Login" )
@@ -257,7 +265,8 @@
     (cl-function
      (lambda (&rest args &key _error-thrown &allow-other-keys)
        (setq grammarly--start-checking-p t)  ; Go back and use anonymous version
-       (message "[ERROR] Error while authenticating login: %s" args)))))
+       (grammarly--debug-message
+        "[ERROR] Error while authenticating login: %s" args)))))
 
 ;;
 ;; (@* "WebSocket" )
@@ -297,7 +306,8 @@
       (grammarly--default-callback (websocket-frame-payload frame)))
     :on-error
     (lambda (_ws _type err)
-      (user-error "[ERROR] Connection error while opening websocket: %s" err))
+      (grammarly--debug-message
+       "[ERROR] Connection error while opening websocket: %s" err))
     :on-close
     (lambda (_ws)
       (grammarly--execute-function-list grammarly-on-close-function-list)))))
