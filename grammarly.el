@@ -59,7 +59,7 @@
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"
   "User agent.")
 
-(defconst grammarly--browser-header
+(defconst grammarly--browser-headers
   `(("User-Agent" . ())
     ("Accept" . "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
     ("Accept-Language" . "en-GB,en-US;q=0.9,en;q=0.8")
@@ -205,7 +205,7 @@
     "https://grammarly.com/signin"
     :type "GET"
     :headers
-    (append grammarly--browser-header
+    (append grammarly--browser-headers
             '(("Sec-Fetch-Mode" . "navigate")
               ("Sec-Fetch-Sit" . "same-origin")
               ("Sec-Fetch-User" . "?1")
@@ -250,7 +250,10 @@
       ("x-csrf-token" . ,(grammarly--get-cookie-by-name "csrf-token"))
       ("sec-fetch-site" . "same-site")
       ("sec-fetch-mode" . "cors")
-      ("cookie" . ,grammarly--cookies))
+      ("cookie" . ,(format "gnar_containrId=%s; grauth=%s; csrf-token=%s"
+                           (grammarly--get-cookie-by-name "gnar_containerId")
+                           (grammarly--get-cookie-by-name "grauth")
+                           (grammarly--get-cookie-by-name "csrf-token"))))
     :data
     (json-encode
      `(("email_login" . (("email" . ,grammarly-username)
