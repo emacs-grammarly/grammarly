@@ -1,12 +1,13 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![MELPA](https://melpa.org/packages/grammarly-badge.svg)](https://melpa.org/#/grammarly)
 [![MELPA Stable](https://stable.melpa.org/packages/grammarly-badge.svg)](https://stable.melpa.org/#/grammarly)
-[![CI](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml/badge.svg)](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml)
 
 <a href="https://app.grammarly.com/"><img align="right" src="./etc/logo.png" width="100" height="100"></a>
 
 # grammarly
 > Grammarly API interface.
+
+[![CI](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml/badge.svg)](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml)
 
 ## Examples
 
