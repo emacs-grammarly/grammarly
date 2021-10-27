@@ -174,8 +174,8 @@
       (let* ((cookie (nth index grammarly--auth-cookie))
              (cookie-name (car cookie)))
         (when (string= cookie-name name)
-          (setq cookie-val (cdr cookie))
-          (setq break t)))
+          (setq cookie-val (cdr cookie)
+                break t)))
       (setq index (1+ index)))
     cookie-val))
 
