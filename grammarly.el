@@ -43,7 +43,7 @@
   "Grammarly API interface."
   :prefix "grammarly-"
   :group 'text
-  :link '(url-link :tag "Github" "https://github.com/jcs-elpa/grammarly"))
+  :link '(url-link :tag "Github" "https://github.com/emacs-grammarly/grammarly"))
 
 (defcustom grammarly-username ""
   "Grammarly login username."
@@ -98,13 +98,13 @@
     ("id" . 0))
   "Grammarly request package definition.")
 
-(defvar grammarly-on-message-function-list '()
+(defvar grammarly-on-message-function-list nil
   "List of callback function when execute on message.")
 
-(defvar grammarly-on-open-function-list '()
+(defvar grammarly-on-open-function-list nil
   "List of callback function when execute on open.")
 
-(defvar grammarly-on-close-function-list '()
+(defvar grammarly-on-close-function-list nil
   "List of callback function when execute on close.")
 
 (defvar grammarly--text ""
@@ -160,7 +160,7 @@
 ;; (@* "Cookie" )
 ;;
 
-(defvar grammarly--auth-cookie '()
+(defvar grammarly--auth-cookie nil
   "Authorization cookie container.")
 
 (defun grammarly--last-cookie (cookie cookies)
@@ -181,7 +181,7 @@
 
 (defun grammarly--form-cookie ()
   "Form all cookies into one string."
-  (setq grammarly--auth-cookie '())
+  (setq grammarly--auth-cookie nil)
   (let ((sec-cookies (request-cookie-alist ".grammarly.com" "/" t))
         (cookie-str "") cookie-name cookie-val)
     (dolist (cookie sec-cookies)
