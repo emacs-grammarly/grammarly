@@ -6,7 +6,7 @@
 
 (source "melpa")
 
-(depends-on "emacs" "24.3")
+(depends-on "emacs" "26.1")
 (depends-on "s")
 (depends-on "request")
 (depends-on "websocket")
