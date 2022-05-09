@@ -38,6 +38,23 @@ of Grammarly!
 (setq grammarly-password "password")  ; Your Grammarly Password
 ```
 
+If you use `auth-source` to manage your secrets, you can add this to your
+`.authinfo.gpg` file:
+
+``` 
+machine grammarly.com login <your@email.com> pass <your-password>
+```
+
+And instead of directly setting `grammarly-username` and `grammarly-password`, 
+you can call the helper function `grammarly-load-from-authinfo`.
+
+``` el
+(grammarly-load-from-authinfo)
+
+;; Or, if you have multiple Grammarly accounts:
+(grammarly-load-from-authinfo "your@email.com")
+```
+
 ## References
 
 * [grammarly-api](https://github.com/dexterleng/grammarly-api)

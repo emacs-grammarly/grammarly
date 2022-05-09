@@ -156,6 +156,18 @@
    ((listp lst) (dolist (fnc lst) (apply fnc args)))
    (t (user-error "[ERROR] Function does not exists: %s" lst))))
 
+(defun grammarly-load-from-authinfo (&optional username)
+  "Load Grammarly authentication info from auth-source. Optionally pass the USERNAME, otherwise, it will be searched in the authinfo file.
+You will need to add a line in your authinfo file \"machine grammarly.com login <YOUR-EMAIL> pass <YOUR-PASSWORD>\"."
+  (require 'auth-source)
+  (let ((user-info (car (auth-source-search :host "grammarly.com" :user username))))
+    (when user-info
+      (let ((user (or username (plist-get user-info :user)))
+            (secret (plist-get user-info :secret)))
+        (when (and user secret)
+          (setq grammarly-username user
+                grammarly-password (funcall secret)) t)))))
+
 ;;
 ;; (@* "Cookie" )
 ;;
