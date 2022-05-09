@@ -9,7 +9,7 @@
 
 [![CI](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml/badge.svg)](https://github.com/emacs-grammarly/grammarly/actions/workflows/test.yml)
 
-## Examples
+## 🔨 Examples
 
 Below is an simple example that how you can use this library for calling
 Grammarly API interface.
@@ -28,7 +28,7 @@ Grammarly API interface.
 (grammarly-check-text "Hello World")
 ```
 
-## Using a Paid Grammarly Account
+## 💸 Using a Paid Grammarly Account
 
 You will need the set the following variable in order to use paid version
 of Grammarly!
@@ -55,13 +55,13 @@ you can call the helper function `grammarly-load-from-authinfo`.
 (grammarly-load-from-authinfo "your@email.com")
 ```
 
-## References
+## 🔗 References
 
 * [grammarly-api](https://github.com/dexterleng/grammarly-api)
 * [reverse-engineered-grammarly-api](https://github.com/c0nn3r/reverse-engineered-grammarly-api)
 * [grammarly (vscode)](https://github.com/znck/grammarly)
 
-## Todo List
+## 📝 Todo List
 
 - [ ] Support multiple requests at the same time.
 
