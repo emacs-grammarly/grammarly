@@ -2,6 +2,9 @@
          "0.3.0"
          "Grammarly API interface")
 
+(website-url "https://github.com/emacs-grammarly/grammarly")
+(keywords "grammar" "api" "interface" "english")
+
 (package-file "grammarly.el")
 
 (source "melpa")

@@ -4,11 +4,10 @@
 ;; Created date 2019-11-06 20:41:48
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
-;; Description: Grammarly API interface.
-;; Keyword: grammar api interface english
+;; URL: https://github.com/emacs-grammarly/grammarly
 ;; Version: 0.3.0
 ;; Package-Requires: ((emacs "26.1") (s "1.12.0") (request "0.3.0") (websocket "1.6"))
-;; URL: https://github.com/emacs-grammarly/grammarly
+;; Keywords: grammar api interface english
 
 ;; This file is NOT part of GNU Emacs.
 
