@@ -7,7 +7,7 @@
 ;; URL: https://github.com/emacs-grammarly/grammarly
 ;; Version: 0.3.0
 ;; Package-Requires: ((emacs "26.1") (s "1.12.0") (request "0.3.0") (websocket "1.6"))
-;; Keywords: grammar api interface english
+;; Keywords: convenience grammar api interface english
 
 ;; This file is NOT part of GNU Emacs.
 
