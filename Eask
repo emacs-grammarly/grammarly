@@ -7,6 +7,8 @@
 
 (package-file "grammarly.el")
 
+(script "test" "echo \"Error: no test specified\" && exit 1")
+
 (source "melpa")
 
 (depends-on "emacs" "26.1")
