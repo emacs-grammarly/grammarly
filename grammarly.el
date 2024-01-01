@@ -1,6 +1,6 @@
 ;;; grammarly.el --- Grammarly API interface  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019-2023  Shen, Jen-Chieh
+;; Copyright (C) 2019-2024  Shen, Jen-Chieh
 ;; Created date 2019-11-06 20:41:48
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
