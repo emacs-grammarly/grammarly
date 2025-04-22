@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "grammarly"
          "0.3.0"
          "Grammarly API interface")
